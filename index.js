@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 app.use(cors());
@@ -13,15 +14,38 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
     try {
+        const productscollections = client.db('verkaufer').collection('category')
+        const userscollections = client.db('verkaufer').collection('users')
 
-    }
-    finally {
-        const productscollections = client.db('verkaufer').collection('products')
-        app.get('/products', async (req, res) => {
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email
+            const user = req.body
+            const filter = { email: email }
+            const options = { upsert: true }
+            const updateDoc = {
+                $set: user,
+            }
+            const result = await userscollections.updateOne(filter, updateDoc, options)
+            console.log(result)
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1D', })
+            res.send({ result, token })
+        })
+        app.get('/category', async (req, res) => {
             const query = {};
             const options = await productscollections.find(query).toArray();
             res.send(options);
         })
+        app.get('/category/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const type = await productscollections.findOne(query);
+            res.send(type);
+
+        })
+
+    }
+    finally {
+
     }
 
 }
