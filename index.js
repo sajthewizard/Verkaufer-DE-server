@@ -56,6 +56,18 @@ async function run() {
             const result = await sachencollections.insertOne(sachen);
             res.send(result);
         })
+        app.get('/sachen', async (req, res) => {
+            const query = {}
+            const sachens = await sachencollections.find(query).toArray();
+            res.send(sachens);
+        })
+        app.get('/sachen/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await sachencollections.find(query).toArray();
+            res.send(user);
+
+        })
 
         app.get('/category', async (req, res) => {
             const query = {};
