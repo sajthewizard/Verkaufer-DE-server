@@ -37,19 +37,8 @@ async function run() {
         const bookigsCollections = client.db('verkaufer').collection('bookings')
         const userscollections = client.db('verkaufer').collection('users')
 
-        app.put('/user/:email', async (req, res) => {
-            const email = req.params.email
-            const user = req.body
-            const filter = { email: email }
-            const options = { upsert: true }
-            const updateDoc = {
-                $set: user,
-            }
-            const result = await userscollections.updateOne(filter, updateDoc, options)
-            console.log(result)
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1D', })
-            res.send({ result, token })
-        })
+
+
         app.get('/users', async (req, res) => {
             const query = {};
             const users = await userscollections.find(query).toArray();
@@ -60,6 +49,7 @@ async function run() {
             const result = await userscollections.insertOne(user);
             res.send(result);
         })
+
         app.get('/category', async (req, res) => {
             const query = {};
             const options = await productscollections.find(query).toArray();
@@ -88,6 +78,27 @@ async function run() {
         app.post('/bookings', async (req, res) => {
             const book = req.body;
             const result = await bookigsCollections.insertOne(book);
+            res.send(result);
+        })
+        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await userscollections.findOne(query);
+            if (user?.role !== 'admin') {
+
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+
+            const id = req.params.id;
+
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const result = await userscollections.updateOne(filter, updatedDoc, options);
             res.send(result);
         })
         app.get('/bookings', verifyJWT, async (req, res) => {
