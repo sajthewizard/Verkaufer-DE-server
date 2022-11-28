@@ -36,6 +36,8 @@ async function run() {
         const productscollections = client.db('verkaufer').collection('category')
         const bookigsCollections = client.db('verkaufer').collection('bookings')
         const userscollections = client.db('verkaufer').collection('users')
+        const sachencollections = client.db('verkaufer').collection('sachen')
+
 
 
 
@@ -47,6 +49,11 @@ async function run() {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await userscollections.insertOne(user);
+            res.send(result);
+        })
+        app.post('/sachen', async (req, res) => {
+            const sachen = req.body;
+            const result = await sachencollections.insertOne(sachen);
             res.send(result);
         })
 
@@ -91,6 +98,11 @@ async function run() {
             const query = { email }
             const user = await userscollections.findOne(query);
             res.send({ isBuyer: user?.role === 'buyer' });
+        })
+        app.get('/usersseller', async (req, res) => {
+            const query = {}
+            const result = await userscollections.find(query).project({ role: 1 }).toArray();
+            res.send(result);
         })
 
         app.get('/users/admin/:email', async (req, res) => {
