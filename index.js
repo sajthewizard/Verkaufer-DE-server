@@ -42,31 +42,67 @@ async function run() {
 
 
         app.get('/users', async (req, res) => {
+
             const query = {};
+
             const users = await userscollections.find(query).toArray();
+
             res.send(users);
         })
+        app.get('/allseller', async (req, res) => {
+            const look = req.query.role;
+            const found = { role: look }
+            const result = await userscollections.find(found).toArray();
+            res.send(result);
+        })
+        app.get('/sachenthings', async (req, res) => {
+            const look = req.query.category;
+            const found = { category: look }
+            const result = await sachencollections.find(found).toArray();
+            res.send(result);
+        })
+
         app.delete('/sachen/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const result = await sachencollections.deleteOne(filter);
             res.send(result);
         })
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await users.deleteOne(filter);
+            res.send(result);
+        })
         app.post('/users', async (req, res) => {
+
             const user = req.body;
             const result = await userscollections.insertOne(user);
             res.send(result);
         })
+
         app.post('/sachen', async (req, res) => {
             const sachen = req.body;
             const result = await sachencollections.insertOne(sachen);
             res.send(result);
         })
         app.get('/sachen', async (req, res) => {
+
             const query = {}
             const sachens = await sachencollections.find(query).toArray();
+
             res.send(sachens);
         })
+        app.get('/sachenall', async (req, res) => {
+            const found = req.query.category;
+            console.log(found)
+            const query = {}
+            const sachens = await sachencollections.find(query).toArray();
+            const foundcategory = { location: found }
+            const result = await sachencollections.find(foundcategory).toArray();
+            res.send(result);
+        })
+
         app.get('/sachen/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email }
@@ -94,6 +130,7 @@ async function run() {
             res.send(type);
 
         })
+
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
@@ -124,11 +161,8 @@ async function run() {
             const user = await userscollections.findOne(query);
             res.send({ isBuyer: user?.role === 'buyer' });
         })
-        app.get('/usersseller', async (req, res) => {
-            const query = {}
-            const result = await userscollections.find(query).project({ role: 1 }).toArray();
-            res.send(result);
-        })
+
+
 
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
