@@ -46,6 +46,12 @@ async function run() {
             const users = await userscollections.find(query).toArray();
             res.send(users);
         })
+        app.delete('/sachen/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await sachencollections.deleteOne(filter);
+            res.send(result);
+        })
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await userscollections.insertOne(user);
@@ -66,6 +72,13 @@ async function run() {
             const query = { email }
             const user = await sachencollections.find(query).toArray();
             res.send(user);
+
+        })
+        app.get('/sachen/:category', async (req, res) => {
+            const category = req.params.category;
+            const query = { category }
+            const result = await sachencollections.find(query).toArray();
+            res.send(result);
 
         })
 
