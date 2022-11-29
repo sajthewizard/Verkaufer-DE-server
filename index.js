@@ -57,6 +57,7 @@ async function run() {
         })
         app.get('/sachenthings', async (req, res) => {
             const look = req.query.category;
+            console.log(look);
             const found = { category: look }
             const result = await sachencollections.find(found).toArray();
             res.send(result);
@@ -71,7 +72,7 @@ async function run() {
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
-            const result = await users.deleteOne(filter);
+            const result = await userscollections.deleteOne(filter);
             res.send(result);
         })
         app.post('/users', async (req, res) => {
@@ -93,6 +94,20 @@ async function run() {
 
             res.send(sachens);
         })
+        app.get('/sachen/:category', async (req, res) => {
+            const category = req.params.category;
+            const query = { category }
+            const sachens = await sachencollections.find(query).toArray();
+
+            res.send(sachens);
+        })
+        app.get('/sachenall/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const sachens = await sachencollections.find(query).toArray();
+
+            res.send(sachens);
+        })
         app.get('/sachenall', async (req, res) => {
             const found = req.query.category;
             console.log(found)
@@ -103,13 +118,9 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/sachen/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email }
-            const user = await sachencollections.find(query).toArray();
-            res.send(user);
 
-        })
+
+
         app.get('/sachen/:category', async (req, res) => {
             const category = req.params.category;
             const query = { category }
